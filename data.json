@@ -1,0 +1,11 @@
+[{email: 'admin@demo.com', pass: '123456', group:'admin'},
+    {email: 'staff@demo.com', pass: 'staff123', group:'staff', token:''},
+    {email: 'staff2@demo.com', pass: 'staff456', group:'staff', token:''},
+    {email: 'staff3@demo.com', pass: 'staff789', group:'staff', token:''},
+    {email: 'student@demo.com', pass: 'student123', group:'student', token:''},
+    {email: 'student2@demo.com', pass: 'student456', group:'student', token:''},
+    {email: 'student3@demo.com', pass: 'student789', group:'student', token:''},
+    {email: 'teacher@demo.com', pass: 'teacher123', group:'teacher', token:''},
+    {email: 'teacher3@demo.com', pass: 'teacher789', group:'teacher', token:''},
+    {email: 'teacher2@demo.com', pass: 'teacher456', group:'teacher', token:''},];
+

@@ -1,0 +1,36 @@
+{
+  "name": "api-backend",
+  "version": "0.0.1",
+  "description": "This is a project for School Management System. This is the API part.  For running this project Clone is form the repository and run `npm install` This will install all the packages.",
+  "main": "app.js",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "csurf": "^1.9.0",
+    "express": "^4.16.3",
+    "express-session": ">=1.0.6",
+    "hat": "0.0.3",
+    "method-override": "^2.3.10",
+    "moment": "^2.21.0",
+    "mongoose": "^5.0.11",
+    "multer": "^1.3.0",
+    "password-hash": "^1.2.2",
+    "serve-static": "^1.13.2",
+    "winston": "^2.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/environbeta-school-management-system/API-Backend.git"
+  },
+  "author": "MD Sakib Ibne Farhad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/environbeta-school-management-system/API-Backend/issues"
+  },
+  "homepage": "https://gitlab.com/environbeta-school-management-system/API-Backend#README"
+}
