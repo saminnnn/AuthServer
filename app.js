@@ -8,7 +8,7 @@ var hat=require('hat');
 var mongoose=require('mongoose');
 var passwordHash = require('password-hash');
 
-mongoose.connect('mongodb://localhost/School');
+mongoose.connect('mongodb://localhost/Database');
 
 var app = express();
 var rack=hat.rack();
