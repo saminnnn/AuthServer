@@ -7,21 +7,12 @@ var path=require('path');
 var hat=require('hat');
 var mongoose=require('mongoose');
 var passwordHash = require('password-hash');
-var multer=require('multer');
 
 mongoose.connect('mongodb://localhost/School');
-var dbSessionClasses={class: Number, section: String, teacher: String};
-var dbDialyRoutine={period: Number, start: String, duration: String, classes: [dbSessionClasses]};
-var dbWeeklyRoutine=mongoose.model('weeklyRoutine',{index: Number, day: String, routine: dbDialyRoutine});
-var dbPeople=mongoose.model('users', {fullName: String, email: String, password: String, type: String, id: String});
-var dbEmployees=mongoose.model('employees', {id: Number, email: String, type: String, name: String, birth: String, joined: String, male: Boolean, married: Boolean, prAddress: String, paAddress: String, phone: String, nid: String, image: Buffer});
-var dbStudents=mongoose.model('students', {name: String, fName: String, mName: String, class: Number, section: String, roll: Number, birthday: String, male: Boolean, prAddress: String, paAddress: String, phone: String, email: String, image:Buffer});
-var dbTuitionFee=mongoose.model('fees',{month: 'String', amount: Number, class: Number, section: String, roll: Number, receiver: String, date: String});
 
 var app = express();
 var rack=hat.rack();
-var sessionTokens=[];
-var upload=multer({storage: multer.memoryStorage()});
+var sessionTokens=[]; //List of session tokens
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -45,11 +36,7 @@ app.get('/', function (req, res) {
     res.send('Hello World');
 });
 
-app.get('/login', function (req, res) {
-    var html=getLogin(req);
-    res.send(html);
-});
-
+//Get the authorization token from header and see if it already exists in the list of session tokens.
 app.get('/api/verify', function(req, res){
 	if(req.headers.authorization){
         var currentToken=req.headers.authorization;
@@ -68,6 +55,8 @@ app.options('/api/verify', function(req, res){
     //console.log('Sent 200 for option check')
 });
 
+//Get email and password combination. If combination exitsts in mongodb database, create a new session token, add it to the list of tokens and
+//send it to user.
 app.post('/api/authenticate', function (req, res) {
     var requestAddress=req.connection.remoteAddress;
 
@@ -78,7 +67,6 @@ app.post('/api/authenticate', function (req, res) {
                 res.send({status: 200, id: person[0].id, fullName:'Full Name', email:person[0].email, token: currentToken, group: person[0].type});
                 var currentIndex=findSessionById(person[0].id, requestAddress);
                 if(currentIndex===-1){
-                    //console.log(typeof(person[0].id));
                     sessionTokens.push({token: currentToken, id: person[0].id, address: requestAddress});
                     //console.log('Pushed a new session entry')
                 }
@@ -93,66 +81,10 @@ app.post('/api/authenticate', function (req, res) {
     });
 });
 
-app.post('/newStudent',upload.single('image'), function(req,res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        var reqBody=req.body;
-        new dbStudents({name: reqBody.name, fName: reqBody.fName, mName: reqBody.mName, class: reqBody.class, section: reqBody.section, roll: reqBody.roll, birthday: reqBody.birthday, male: reqBody.male, prAddress: reqBody.prAddress, paAddress: reqBody.paAddress, phone: reqBody.phone, email: reqBody.email, image:req.file.buffer}).save();
-        res.sendStatus(200);
-    }
-    else sendNotFound(res);
-});
-
-app.post('/newEmployee',upload.single('image'), function(req,res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        var reqBody=req.body;
-        new dbEmployees({nid:reqBody.nid, id:reqBody.eid, name: reqBody.name, type: reqBody.type, id: reqBody.id, birthday: reqBody.birthday, male: reqBody.male, prAddress: reqBody.prAddress, paAddress: reqBody.paAddress, phone: reqBody.phone, email: reqBody.email, married: reqBody.married, joined: reqBody.joined, image:req.file.buffer}).save();
-        new dbPeople({id:reqBody.eid, email:reqBody.email, password:passwordHash.generate(reqBody.password)}).save();
-        res.sendStatus(200);
-    }
-    else sendNotFound(res);
-});
-
-app.post('/getStaff', function(req,res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        if(req.body.teacherOnly){
-            dbEmployees.find({type:'teacher'}, (err,result)=> res.send(result));
-        }
-        else{
-            dbEmployees.find({}, (err,result)=> res.send(result));
-        }  
-    }
-    else sendNotFound(res);
-});
-
-app.post('/getRoutine', function(req,res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        dbSessionClasses.find({}, (err, result)=>res.send(result));
-    }
-    else sendNotFound(res);
-});
-
-app.post('/newFee', function(req,res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        new dbTuitionFee(req.body.feeInfo).save();
-    }
-    else sendNotFound(res);
-});
-
-app.post('/addClass', function(req, res){
-    if(sessionTokens[findSessionById(req.body.id, req.connection.remoteAddress)].token===req.body.token){
-        new dbSessionClasses(req.class).save();
-    }
-    else sendNotFound(res);
-});
-
 //route to handle user registration
 app.listen(5000, function () {
     logger.info('Starting Server at port 5000...');
 });
-
-function getLogin(req){
-    return '<html><body><form action="/login" method="post"><input type="text" name="username"><input type="submit" value="Submit"></form></body>'
-}
 
 function sendNotFound(res){
     res.send({status: 401});
